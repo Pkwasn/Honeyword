@@ -35,7 +35,11 @@ Generation Methods:
     Tail-Tweaking ('tt') :
     Tweaking-Digits ('td') :
 
-    Tough-Nut-Inclusion ('tni') :
+Other Options:
+
+    Tough-Nut (tn_count) : Include N tough-nuts in the output list, basically a password which will never
+                            be cracked. Length of 40 characters
+
 
 Reference: Honeywords: Making Password-Cracking Detectable
            - Ari Juels (ari.juels@rsa.com), Ronald L. Rivest (rivest@mit.edu)
@@ -47,13 +51,19 @@ Reference: Honeywords: Making Password-Cracking Detectable
 default_chars = string.ascii_letters + string.digits + string.punctuation
 
 
-def generate_honeywords(password : str, count : int, generation_method : str='tt') -> list:
+def generate_honeywords(password : str, count : int, generation_method : str='tt', tn_count : int=2) -> list:
     """Generate count number of honeywords based on the inputed password and generation method, overview
     of the generation method is detailed in the file summary above
     """
 
+    p_list = []                 # List which will be returned by generate_honeywords at random
+    count += tn_count           # tn_count counted seperately than count
 
+    for i in range(tn_count):
+        nut = generate_tough_nut()
+        p_list.append(nut)
 
+    return scramble_list(p_list)
 
 def tweak_password_length(password : str) -> str:
     """Tweak the length of the password, adding or subtracting characters at random based on the
@@ -72,16 +82,37 @@ def tweak_password_length(password : str) -> str:
 
 def tail_tweak_all(password : str, divisor : int=3 ) ->str:
     """Change characters to a different character of the same character type
-    starting from the end of the string to the 2/3 index of the password
+    starting from the end of the string to the ~(divisor) index of the password
     """
     end = len(password)//divisor
     start = len(password)
 
-    for index in range(start-1,start-end-1, -1):
-        password[index] = tweak_char(password[index])
+    temp = list(password)
 
-    print(password)
-    return(password)
+    for index in range(start-1,start-end-1, -1):
+        temp[index] = tweak_char(temp[index])
+
+    return ''.join(u for u in temp)
+
+def generate_tough_nut() -> str:
+    """Generate a password which will not be able to get cracked, 40 character length
+    Implementing a password policy for generating tough nuts is unncessary as each char_type
+    will be used atleast once
+    """
+
+    return ''.join(secrets.choice(default_chars) for i in range(40))
+
+def scramble_list(passlist : list) -> list:
+    """Return a scrambled version of inputed list, only called in generate_honeywords so
+    generated honeywords aren't in the same position each time
+    """
+    temp = []
+    while len(passlist) > 0:
+        index = secrets.randbelow(len(passlist))
+        temp.append(passlist[index])
+        passlist.pop(index)
+
+    return temp
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~[Helper Methods]~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
@@ -136,4 +167,4 @@ def determine_sign() -> bool:
 
 if __name__ == "__main__":
 
-    pass1 = tail_tweak_all('password')
+    p = generate_honeywords()
