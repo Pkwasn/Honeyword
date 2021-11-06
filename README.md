@@ -23,6 +23,8 @@ HoneyGenerator.py use description:
 	
 	Generation Methods:
 	
-Reference: Honeywords: Making Password-Cracking Detectable
+Reference: 
+	
+	Honeywords: Making Password-Cracking Detectable
            - Ari Juels (ari.juels@rsa.com), Ronald L. Rivest (rivest@mit.edu)
            - https://people.csail.mit.edu/rivest/pubs/JR13.pdf
