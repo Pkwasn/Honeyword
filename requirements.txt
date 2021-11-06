@@ -1,0 +1,6 @@
+argon2-cffi==21.1.0
+cffi==1.15.0
+password-strength==0.0.3.post2
+pycparser==2.20
+six==1.16.0
+typing==3.7.4.3
