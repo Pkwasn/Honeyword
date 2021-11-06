@@ -8,6 +8,11 @@ def cprint(statement, output):
     """Cyan Output Color"""
     print(statement + '\033[96m' + output + '\033[0m')
 
+def wprint(statement):
+    """Print Warning Statement"""
+    print('\033[93m' + statement + '\033[0m')
+
+
 """
 Last Updated: 10/21/2021
 
@@ -83,9 +88,33 @@ def generate_honeywords(password : str, count : int, generation_method : str='td
 
     return scramble_list(p_list)
 
-def honeyword(password : str, instances : int = 10):
+def honeyword(password : str, instances : int = 10, *,hash_ : bool = False, tnc : int = 3, policy_ : bool=False):
+    """Generate N Honeywords for N = instances, automatically determine which generation method to use based on
+    input password. Additionally, check if password meets password policy
 
-    print_analysis(password)
+
+    Keyword Only Arguments:
+        hash_ : Hash the honeywords automatically (with per use salt)
+        tnc : Generate N tough nuts for N = tnc (DEFAULT = 3)
+    """
+    _policy = True # TEMPORARY
+
+    if _policy:
+        p = policy.test(password)
+        if len(p) > 0:
+            wprint("WARNING: Password does not meet policy standards, still proceeding with honeyword generation")
+            wprint('Invalid policy parameters: ' + str(p))
+
+    L = [password]
+
+    for tn in range(tnc):
+        # Append all tough nuts
+        nut = generate_tough_nut()
+        L.append(nut)
+
+
+
+    return scramble_list(L)
 
 
 
@@ -104,23 +133,27 @@ def tweak_password_length(password : str) -> str:
 
     return password
 
+def increase_password_length(password : str, *, random : bool = True) ->str:
+    """"""
 
-def determine_incices(password : str, char_type : str=string.punctuation, target_type : str) -> list:
+def tweak_parity_indices(password : str, char_type : str, parity : str='Even') -> str:
+    """Tweak the indicies of the password of parity and also of char_type
+    Character Types: string.digits, string.ascii_letters, string.punctuation (symbols)
     """
-    char_type : what we want to change
-    target_type : from what indecies
-    """
+    if parity == 'Odd':
+        start = 1
+    elif parity == "Even":
+        start = 0
 
-    L = find_all_positions(password, char_type)
+    temp = list(password)
 
-    for count, i in emumerate(L):
-        if count % 2 == 1:
-            index = L[i][1]
+    for index in range(start, len(temp), 2):
+        if temp[index] in char_type:
+            temp[index] = tweak_char(temp[index])
+        else:
+            continue
 
-
-
-def tweak_odd_indices(password : str, char_type : str) -> str:
-    pass
+    return ''.join(u for u in temp)
 
 def tweak_digits(password : str, first : bool=True) -> str:
     """Tweak only the digits of the password, automatically determine if it is better (more digits) to tweak after
@@ -281,8 +314,12 @@ def print_analysis(password : str) -> None:
     print(f'{policy.test(password)=}]')
 
 
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~[ MAIN ]~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 if __name__ == "__main__":
 
-    honeyword('abc1234!@#!$')
+    l = honeyword('abc1234!@#!$')
+    print(l)
+    p = tweak_parity_indices('abc1234!@#!$', string.punctuation)
+    print(p)
